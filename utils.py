@@ -16,6 +16,8 @@ class Utils:
         parser.add_argument('initial_y', type=int, help='Initial y coordinate')
         parser.add_argument('goal_x', type=int, help='Goal x coordinate')
         parser.add_argument('goal_y', type=int, help='Goal y coordinate')
+        
+        parser.add_argument('--measure', action='store_true', help='Measure time')
 
         args = parser.parse_args()
 
@@ -35,3 +37,22 @@ class Utils:
     
     def heuristic_euclidean_distance(self, x1, y1, x2, y2):
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+    
+    def store_map(self, map_file, width, height):
+
+        game_map = [['' for _ in range(width)] for _ in range(height)]
+
+        with open(map_file, encoding='UTF-8') as f:
+            
+            lines = f.readlines()[1:]  # Skip the first line with the dimensions
+    
+            # Populate the board with coordinates (X, Y)
+            for x, line in enumerate(lines):  # `y` represents the row
+                for y, char in enumerate(line.strip()):  # `x` represents the column
+                    game_map[y][x] = char
+        
+         # print map
+        for row in game_map:
+            print(row)
+        
+        return game_map

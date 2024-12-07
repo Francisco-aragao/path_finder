@@ -1,0 +1,154 @@
+\documentclass[10pt]{extarticle} % Usa fonte de 10pt
+\usepackage{graphicx} % Required for inserting images
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage[outputdir=build]{minted}
+\usepackage{bookmark}
+\setminted{
+  breaklines=true, % Permite quebra de linha
+  breakanywhere=true, % Permite quebra em qualquer posição
+  fontsize=\small % Define tamanho da fonte para ajudar com overflow
+}
+
+\geometry{margin=1in}
+
+\title{Trabalho Prático 1 - Introdução a Inteligência Artificial}
+\author{Francisco Teixeira Rocha Aragão - 2021031726}
+
+\date{Data: 11 de Dezembro de 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução}
+
+O presente trabalho busca exercitar os conceitos de busca em espaço de estados. Dessa forma, recebendo um mapa de cidades, suas respectivas coordenadas e custos em cada caminho, o objetivo é encontrar um caminho ligando o ponto inicial até o ponto final desejado. Assim, foram implementados diferentes algoritmos para resolução do problema, sendo BFS (Busca em Largura), UCS (Busca de Custo Uniforme), IDS (Busca em Profundidade Iterativa) além das heurísticas A* e uma abordagem gulosa. Com isso, abaixo encontram-se mais informações sobre a modelagem do problema, os algoritmos utilizados e detalhes de implementação além dos resultados e conclusões obtidas.
+
+\section{Definição do problema}
+
+O problema é constituído de uma matriz que representa os terrenos em cada posição do mapa, com o objetivo de encontrar um caminho entre o ponto inicial e final. Desse modo, o mapa foi representado como uma matriz de dimensões Linhas x Colunas, com cada posição contendo um valor que representa o terreno. Cada um dos algoritmos então realiza uma busca nessa matriz, levando em consideração os respectivos custos de cada tipo de terreno que foram fornecidos na descrição do trabalho. Assim, a classe 'Game' lida salvando as informações úteis sobre o mapa além das informações do percurso escolhido com o auxílio da classe 'Utils' que contém funções importantes para receber informações do mapa.
+
+\section{Algoritmos Implementados}
+
+Vale destacar que para análise dos algoritmos abaixo, medidas de complexidade como 'b' (branch factor), 'd' (profundidade da solução mais rasa) e 'm' (profundidade máxima da busca) foram utilizadas em um contexto específico do problema, que não envolve árvores de busca, mas sim a matriz que representa o mapa do jogo. Desse modo, cada nó visitado expande nó máximo 4 vizinhos (cima, baixo, esquerda e direita) e a profundidade está restrita a área do mapa.
+
+\subsection{Busca em Largura (BFS)}
+
+O algoritmo de busca em largura é um algoritmo de busca sem informação que consiste em expandir todos os nós vizinhos do nó atual, ou seja, expande cada nível do mapa antes de passar para o próximo. Assim, o algoritmo verifica o nó inicial, depois expande os vizinhos de cima, baixo, esquerda e direita, e assim por diante. O algoritmo termina então ao ser encontrado o nó final. Esse algoritmo não é ótimo, visto que o problema não possui uma função de custo crescente por nível (diferentes terrenos possuem custos diferentes). Dessa forma, o primeiro caminho que chega na solução já finaliza o algoritmo. Mesmo não sendo ótimo, o algoritmo é completo e encontra uma solução. Sua complexidade é de O(b\textsuperscript{d}) para tempo e espaço, em que b é o branch factor e d é a profundidade da solução mais rasa.
+
+\subsection{Busca de Custo Uniforme (UCS)}
+
+A busca de custo uniforme é um algoritmo de busca sem informação que expande o nó com menor custo total até o momento. É utilizado uma fila de prioridades (heap) para implementação, escolhendo e atualizando os nós descobertos a cada iteração, selecionando o melhor para expansão. Justamente por essa escolha e atualização do melhor para expansão, o algoritmo é ótimo, e no caso do problema também é completo, já que não existem custos negativos nem ciclos. Sua complexidade depende do custo da solução ótima C*, sendo O(b\textsuperscript{1 + C*/e}), em que 'e' é o menor custo.
+
+\subsection{Busca em Profundidade Iterativa (IDS)}
+
+A busca de profundidade iterativa funciona executando uma DFS limitada por nível, explorando cada um dos níveis incrementalmente a cada iteração. Dessa forma, o algoritmo começa com uma profundidade 0, expandindo em profundidade todo o nível, depois reinicia o processo expandindo em profundidade o próximo nível. O algoritmo tem características semelhantes a BFS em respeito a otimilidade e competude. Sua complexidade de tempo é O(b\textsuperscript{d}) com espaço O(bd). O algoritmo realiza mais expansões de nós do que os demais, visto que revisita todos os nós anteiores a cada iteração, porém no limite esse custo é dominado pelo último nível expandido.
+
+\subsection{Função Heurística}
+
+A função heurística utilizada é a distância euclidiana entre dois pontos, sendo importante para os algoritmos de busca com informação. A função é calculada a partir da fórmula: 
+
+\begin{equation}
+    h(n) = \sqrt{(x2 - x1)\textsuperscript{2} + (y2 - y1)\textsuperscript{2}}
+\end{equation}
+
+Essa função é uma heurística admissível, já que a distância euclidiana é sempre menor ou igual a distância real entre dois pontos. No problema em questão, isso também é válido visto que o que importa não é somente a distância entre os pontos, mas também o custo de cada terreno que é percorrido. Dessa forma, o valor da heurística sempre vai ser menor que o custo real.
+
+\subsection{Greedy}
+
+A heurística de busca gulosa consiste em uma busca com informação, sendo utilizada uma heurística para auxiliar as tomadas de decisões. Assim, ao invés de se utilizar o custo real dos caminhos, é utilizado a distância euclidiana como um fator de decisão. Dessa forma, o caminho com menor valor para a função heurística é escolhido para ser expandido. O algoritmo não é ótimo (visto que não considera os custos reais) porém é completo (por padrão a abordagem não é completa, porém nesse trabalho sua implementação foi feita salvando caminhos já visitados, evitando que o algoritmo entre em loop). Sua complexidade é O(b\textsuperscript{m}), em que 'm' é a profundidade máxima da busca.
+
+\subsection{A*}
+
+A abordagem A* também é um algoritmo de busca com informação que atua de modo semelhante a abordagem UCS, porém não considera somente os custos reais, mas também a função heurística para auxiliar a busca. Desse modo, o algoritmo expande o nó com menor custo total, sendo a soma do custo real e da função heurística. O algoritmo é completo (assim como UCS) e ótimo (desde que a heurística seja admissível, o que é o caso). Sua complexidade é semelhante a UCS, porém também é influenciada pela heurística utilizada.
+
+\section{Execução e Resultados}
+
+O código foi desenvolvido em C++ e os testes foram realizados em uma máquina com debian 12, 16GB de ram e processador I5-11 geração. Sua execução pode ser realizada com os seguintes comandos:
+
+\begin{minted}{c++}
+// compilação
+make
+
+// limpar arquivos gerados
+make clean
+
+// rodar programa
+make run ARGS="<pasta com instâncias de entrada> <tipo da cidade inicial>
+// <tipo de cidade inicial> = 0 para usar a primeira cidade e 1 para usar cidade central
+\end{minted}
+
+Vale destacar que os arquivos de entrada foram encontrados no site TSPLIB95, presente nas referências no trabalho, com o projeto executando apenas as instâncias que terminam com a extensão '.tsp'. Além disso, a execução foi realizada 5 vezes para cada instância, com as médias dos resultados disponível nas tabelas abaixo. As heurísticas implementadas no trabalho são deterministícas, não obtendo mudanças entre as execuções, então a média dos resultados foi obtida para encontrar o valor médio do tempo de execução.
+
+Desse modo, observando a tabela 1 presente abaixo, é possível visualizar os resultados do VND para as instâncias de teste utilzadas. Assim, percebe-se que para todos os casos, a aplicação do VND conseguiu melhorar o custo final do caminho encontrado, concluindo assim o objetivo de evitar resultados presos em ótimos locais. Embora o custo seja mais alto, em instãncias pequenas o tempo não foi um fator tão relevante, possuindo um maior custo visível nas maiores instâncias (200 cidades).
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|} \hline 
+         \textbf{Instância} & \textbf{Ótimo} & \textbf{Caminho Inicial} & \textbf{Custo Final} & \textbf{Tempo (s)} & \textbf{Erro Percentual (\%)} \\ \hline 
+         pr144      & 58537    & 64161.5      & 62158.8    & 40.8551   & 6.19  \\ \hline
+         pr152      & 73682    & 80161.3      & 78562.3    & 25.7106   & 6.61  \\ \hline
+         pr124      & 59030    & 68321.4      & 63340.8    & 9.61927   & 7.30  \\ \hline
+         st70       & 675      & 783.72       & 741.092    & 0.664765  & 9.79  \\ \hline
+         pr107      & 44303    & 52145.5      & 48863      & 6.19966   & 10.30 \\ \hline
+         pr76       & 108159   & 151142       & 119562     & 1.72431   & 10.56 \\ \hline
+         kroE100    & 22068    & 26884.6      & 24630.8    & 7.48277   & 11.61 \\ \hline
+         pr136      & 96772    & 116045       & 109462     & 20.6047   & 13.10 \\ \hline
+         kroC100    & 20749    & 24173.9      & 23554.8    & 3.51075   & 13.53 \\ \hline
+         rat99      & 1211     & 1493.92      & 1380.22    & 10.5665   & 13.98 \\ \hline
+         kroB100    & 22141    & 27208.5      & 25329.5    & 7.64223   & 14.40 \\ \hline
+         kroA100    & 21282    & 25781.6      & 24389.5    & 4.09814   & 14.62 \\ \hline
+         berlin52   & 7542     & 9140.13      & 8764.12    & 0.338102  & 16.20 \\ \hline
+         kroA150    & 26524    & 32786.8      & 31135.4    & 45.7727   & 17.38 \\ \hline
+         kroB150    & 26130    & 34583.7      & 30711.4    & 48.4881   & 17.51 \\ \hline
+         kroB200    & 29437    & 36893.6      & 35374      & 117.834   & 20.17 \\ \hline
+         rat195     & 2323     & 2830.1       & 2791.6     & 142.556   & 20.19 \\ \hline
+         kroA200    & 29368    & 37701.5      & 35637.6    & 124.522   & 21.31 \\ \hline
+         lin105     & 14379    & 19182.4      & 18084.7    & 8.57969   & 25.78 \\ \hline
+         kroD100    & 21294    & 27695.5      & 27127.5    & 6.90666   & 27.41 \\ \hline
+    \end{tabular}
+    \caption{Resultados VND - Custo Inicial, Final e Erro Percentual}
+    \label{tab:comparison_with_initial}
+\end{table}
+
+Na tabela 2 foram feitos testes em instâncias maiores do problema TSP. É possível observar o aumento no tempo, causado pela quantidade de verificações feitas pelas diferentes vizinhanças que passa a se tornar um grande problema. Vale destacar a diferença de tempo observada entre a tabela 2 e os resultados da tabela 3, com a solução inicial (utilizando uma heurística gulosa) é obtida bem rápido, enquanto o VND com as verificações em multíplas vizinhanças consomem quase a totalidade do tempo de execução.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|} \hline 
+         \textbf{Instância} & \textbf{Ótimo} & \textbf{Caminho Inicial} & \textbf{Custo Final} & \textbf{Tempo (s)} & \textbf{Erro Percentual (\%)}\\ \hline 
+         pr299      & 48191    & 60288.6      & 58182.8    & 726.937   & 20.75  \\ \hline
+         lin318     & 42029    & 53456.1      & 51718.9    & 2744.43   & 23.07  \\ \hline
+    \end{tabular}
+    \caption{Resultados VND - Instâncias maiores - Custo Inicial, Final, Tempo e Erro Percentual}
+    \label{tab:comparison_with_initial}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|} \hline 
+         \textbf{Instância} & \textbf{Primeira Solução (s)} \\ \hline 
+         pr299      & 0.067662 \\ \hline
+         lin318     & 0.078952 \\ \hline
+    \end{tabular}
+    \caption{Tempos da Primeira Solução por Instância}
+    \label{tab:first_solution_times}
+\end{table}
+
+
+\section{Conclusão}
+
+Observando os resultados presentes na tabela acima, percebe-se como o VND é útil e importante em problems com um grande espaço de busca, conseguindo obter ganhos no resultado obtido a partir da troca de vizinhança utilizada. Dessa forma, é possível encontrar melhores soluções a cada nova vizinhança utilizada, ao custo de maior tempo de execução verificando cada vizinho das vizinhanças maiores. Com isso, possíveis trabalhos futuros podem implementar melhorias no código de forma a otimizar o tempo de cada busca nas vizinhanças, ou então testar diferentes vizinhanças para buscar melhores resultados.
+
+\section{Referências}
+
+\noindent \href{https://www.ime.unicamp.br/~chico/mt852/slidesvns.pdf}{VND e Vizinhanças TSP}
+
+\noindent \href{https://tsp-basics.blogspot.com/2017/04/4-opt-and-double-bridge.html}{4-opt e Double Bridge}
+
+\noindent \href{https://pdf.sciencedirectassets.com/778416/1-s2.0-S2192440621X00032/1-s2.0-S2192440622000053/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEGgaCXVzLWVhc3QtMSJHMEUCIQCiKX487R4VSubTVZyJ3nmzsr91E8CitBZ2u1esa5Ap%2BgIgZE3ErxfV6ee7CfmqBW1FJezbVbzNnEfUOTDi8u2eYy4qsgUIIRAFGgwwNTkwMDM1NDY4NjUiDE6%2FcXXDbvb87a6k6yqPBeDvVEbzubwNBJxQLq2ZfEFIgezjYHJ37BKKl7DkQTiUiGlR940eRdZeX5%2B%2FXlIHNqLxEK5fPTPufa2lnXR2V1i3cicZIHVcAnOphaIoHFFn1XpdBf9Y3K3GTceHB8Wqrpa7B1WEJ0F%2BdhTeqbJguVU8pUOWIaK8OYLcpOpVOsx5s1lPdKKt5G6d727Sep%2B6U2293QjHwhAsmv4m%2FYzYvLEDJMPjsBimlC6HAuWXRzE6sy8Cg%2BWRgopHhMQyPJbeZkg%2BWaM8K3U2Ve2DhIpsJHHG5u9Wh6iZb9%2FtG5Cy5M55JbebjoWvJzS%2FrSce8ZTqNKH5AvwB9L8ONK3zAAdRjBql7QraDrPlBFvm85QYMVbp4QcSmQZE08%2BsDiMM3T44lp5KI64W3EdCbfxcre7uuOqCJbCIPZa2nTp6oNQxXobgs%2BRcnH5llvqh%2FiQV7OYmixz0JL%2B1G77zjVejfyjoJZueDg846cdLp3uuQ%2FUaTp%2F33gI9aNlr25z1ZZOwRs6uDIrymsKixO9mqz9AUQQmyQ9JqJhtfziMpu2xcNRAb%2Fn4DADUouoMiRgrkf%2F0PPJXbKx%2Fg9%2B%2BfVw71Jjcot1ltoORZpNnB1zS58zJWuHIiazPMcPLWhZmcHFSnpMg7yCSp9V0zgmbRNQ%2BpITx13WcijwWS6wm2q8cAY9NecqHpCrM9EP%2FETGgQEP3GGt%2FDiPDIpQcCPLByMOCWq%2FrGdguATbTA7tv1j3XdK2zP1Js27tZKr7LNkHWknxeMt%2Fagvm7N8z7DMNWHxQHxwat80XbVIRcl3DUI36iSsxPsotGRZjs7rDE9iq35YAqH66mIRfMZpYPR3m7OVANQnRSUgEX3Aexlhog87hocSBbRpp9CvowxfrIugY6sQElo7d9%2FrPJJMb5SD49lLtjMVZCHEALt8ys4xrG2ki6gs%2FiHxuRYftgR8EGKZccgJW1f1QYj9YZcuhSyh86SQieHu070LQ3%2FP%2BXD6RS8lSZ8IcLSvtbJ9OsItDYD1z0gbFXmngDY8LFuQCPED6T%2BE7Jie%2FtLuh4JRspzdo1zYN6RunacR5rICFdmiQTrGnKDi%2B1XhJGQlVvzPakGtpBYnAVdqyk5Cmjp4SPP907S3tUt4I%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20241206T010734Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTY3IP7EX5J%2F20241206%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=8b6208d83247bb9adca2d15311874678315c251c696ea5cb7dd1c74d66e6170c&hash=e64ef5f85fe0367ad62d087fd1bbcbf3b36ac468af0acc60ed8633cad3c89a7b&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S2192440622000053&tid=spdf-125af566-425d-428e-9fe7-2128106a5dd4&sid=d7b580137b8be84f217b42c3dc0433ee14a8gxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=0c125c050159585351&rr=8ed8613df8668c5b&cc=br}{Artigo: Vizinhanças e busca local para TSP}
+\noindent \href{http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/}{Site com instâncias e ótimos de TSP}
+
+\end{document}

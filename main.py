@@ -1,5 +1,6 @@
 from game import Game
 from utils import Utils
+from time import time
 
 if __name__ == '__main__':
 
@@ -14,7 +15,7 @@ if __name__ == '__main__':
 
     game = Game(width=height, height=width)
 
-    game.store_map(args.map_file)
+    game.map = utils.store_map(map_file=args.map_file, width=height, height=width)
 
     # inverting the coordinates
     """ initial_x = args.initial_y
@@ -23,7 +24,10 @@ if __name__ == '__main__':
     goal_x = args.goal_y
     goal_y = args.goal_x """
 
-    path, cost = game.find_best_path(args.algorithm, args.initial_x, args.initial_y, args.goal_x, args.goal_y)
+    # store initial time   
+    start = time()
+    path, cost, expanded_nodes = game.find_best_path(args.algorithm, args.initial_x, args.initial_y, args.goal_x, args.goal_y)
+    end = time()
 
     print(cost, end=' ')
     for p in path:
@@ -31,4 +35,6 @@ if __name__ == '__main__':
 
     print()
 
-
+    if args.measure:
+        print('Time:', end - start)
+        print('Expanded nodes:', expanded_nodes)

@@ -12,6 +12,8 @@ from collections import deque
 import heapq
 from utils import Utils
 
+EXPANDED_NODES = 0
+
 class Game:
 
     def __init__(self, width, height):
@@ -22,21 +24,6 @@ class Game:
         self.min_cost = float('inf')
         self.best_path = []
 
-
-    def store_map(self, map_file):
-
-        with open(map_file, encoding='UTF-8') as f:
-            
-            lines = f.readlines()[1:]  # Skip the first line with the dimensions
-    
-            # Populate the board with coordinates (X, Y)
-            for x, line in enumerate(lines):  # `y` represents the row
-                for y, char in enumerate(line.strip()):  # `x` represents the column
-                    self.map[y][x] = char
-        
-         # print map
-        for row in self.map:
-            print(row)
         
     def find_best_path(self, alg, initial_x, initial_y, goal_x, goal_y):
         
@@ -53,7 +40,7 @@ class Game:
         else:
             raise Exception(f'Algorithm {alg} not implemented')
         
-        return self.best_path, self.min_cost
+        return self.best_path, self.min_cost, EXPANDED_NODES
 
     """ def dfs(self, x, y, goal_x, goal_y, cost=0, path=None, visited=None):
         if visited is None:
@@ -92,6 +79,8 @@ class Game:
 
     
     def bfs(self, x, y, goal_x, goal_y, queue=None, visited=None):
+
+       
         # Initialize queue and visited set on the first call
         if queue is None:
             queue = [(x, y, 0, [(x, y)])]
@@ -112,6 +101,9 @@ class Game:
             (current_x, current_y) in visited or self.map[current_x][current_y] == '@'
         ):
             return self.bfs(x, y, goal_x, goal_y, queue, visited)
+        
+        global EXPANDED_NODES
+        EXPANDED_NODES += 1
 
         #print('Visiting', current_x, current_y, ':', self.map[current_x][current_y])
         #print('Visited:', visited)
@@ -141,6 +133,8 @@ class Game:
         visited.remove((current_x, current_y))
 
     def dfs_limited(self, x, y, goal_x, goal_y, depth_limit, cost=0, path=None):
+        
+
         if path is None:
             path = []
 
@@ -150,6 +144,9 @@ class Game:
             self.map[x][y] == '@' or len(path) > depth_limit
         ):
             return False
+        
+        global EXPANDED_NODES
+        EXPANDED_NODES += 1
 
         # Add the current node to the path
         path.append((x, y))
@@ -188,6 +185,8 @@ class Game:
         return self.best_path, self.min_cost
 
     def ucs(self, initial_x, initial_y, goal_x, goal_y):
+        
+
         # Priority queue: stores (cumulative_cost, x, y, path)
         priority_queue = []
         heapq.heappush(priority_queue, (0, initial_x, initial_y, [(initial_x, initial_y)]))
@@ -196,12 +195,16 @@ class Game:
         visited = set()
 
         while priority_queue:
+            
             # Pop the node with the smallest cumulative cost
             current_cost, x, y, path = heapq.heappop(priority_queue)
 
             # If we've already visited this node, skip it
             if (x, y) in visited:
                 continue
+
+            global EXPANDED_NODES
+            EXPANDED_NODES += 1
 
             # Mark the node as visited
             visited.add((x, y))
@@ -240,8 +243,19 @@ class Game:
         g_costs = {(initial_x, initial_y): 0}
 
         while priority_queue:
+
             # Pop the node with the smallest estimated total cost
             _, current_cost, x, y, path = heapq.heappop(priority_queue)
+
+            if (
+                x < 0 or y < 0 or 
+                x >= self.col or y >= self.row or 
+                self.map[x][y] == '@'
+            ):
+                continue
+
+            global EXPANDED_NODES
+            EXPANDED_NODES += 1
 
             print(f"Visiting: ({x}, {y}) with cost: {current_cost}")
 
@@ -284,6 +298,8 @@ class Game:
         visited = set()
 
         while priority_queue:
+
+
             # Pop the node with the smallest heuristic cost
             _, current_x, current_y, path, real_cost = heapq.heappop(priority_queue)
 
@@ -297,6 +313,9 @@ class Game:
                 (current_x, current_y) in visited
             ):
                 continue
+            
+            global EXPANDED_NODES
+            EXPANDED_NODES += 1
 
             # Mark the node as visited
             visited.add((current_x, current_y))
