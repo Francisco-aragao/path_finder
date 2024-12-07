@@ -23,6 +23,12 @@ if __name__ == '__main__':
     goal_x = args.goal_y
     goal_y = args.goal_x """
 
-    game.bfs(args.initial_x, args.initial_y, args.goal_x, args.goal_y)
+    path, cost = game.find_best_path(args.algorithm, args.initial_x, args.initial_y, args.goal_x, args.goal_y)
+
+    print(cost, end=' ')
+    for p in path:
+        print(p, end=' ')
+
+    print()
 
 
