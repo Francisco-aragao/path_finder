@@ -1,0 +1,80 @@
+#!/bin/bash
+# Run each algorithm and collect the results
+
+CAMINHO_ENTRADA="mapas/mapa_teste.map"
+VALOR_INICIAL_X=1
+VALOR_INICIAL_Y=1
+VALOR_FINAL_X=3
+VALOR_FINAL_Y=1
+
+echo "Greedy"
+python3 main.py $CAMINHO_ENTRADA Greedy $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "A*"
+python3 main.py $CAMINHO_ENTRADA AStar $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "BFS"
+python3 main.py $CAMINHO_ENTRADA BFS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "IDS"
+python3 main.py $CAMINHO_ENTRADA IDS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "UCS"
+python3 main.py $CAMINHO_ENTRADA UCS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+#CAMINHO_ENTRADA="mapas/cidade.map"
+#VALOR_INICIAL_X=1
+#VALOR_INICIAL_Y=130
+#VALOR_FINAL_X=166
+#VALOR_FINAL_Y=192
+#
+#echo "Greedy"
+#python3 main.py $CAMINHO_ENTRADA Greedy $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+#echo ""
+#
+#echo "A*"
+#python3 main.py $CAMINHO_ENTRADA AStar $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+#echo ""
+#
+#echo "BFS"
+#python3 main.py $CAMINHO_ENTRADA BFS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+#echo ""
+#
+##echo "IDS"
+##python3 main.py $CAMINHO_ENTRADA IDS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+##echo ""
+#
+#echo "UCS"
+#python3 main.py $CAMINHO_ENTRADA UCS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+#echo ""
+
+CAMINHO_ENTRADA="mapas/floresta.map"
+VALOR_INICIAL_X=244
+VALOR_INICIAL_Y=21
+VALOR_FINAL_X=104
+VALOR_FINAL_Y=2
+
+echo "Greedy"
+python3 main.py $CAMINHO_ENTRADA Greedy $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "A*"
+python3 main.py $CAMINHO_ENTRADA AStar $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+echo "BFS"
+python3 main.py $CAMINHO_ENTRADA BFS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""
+
+#echo "IDS"
+#python3 main.py $CAMINHO_ENTRADA IDS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+#echo ""
+
+echo "UCS"
+python3 main.py $CAMINHO_ENTRADA UCS $VALOR_INICIAL_X $VALOR_INICIAL_Y $VALOR_FINAL_X $VALOR_FINAL_Y --measure
+echo ""

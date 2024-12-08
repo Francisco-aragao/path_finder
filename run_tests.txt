@@ -1,0 +1,19 @@
+Greedy
+Custo: 844.0 
+Time: 0.04291200637817383
+Expanded nodes: 6739
+
+A*
+Custo: 649.0 
+Time: 0.03677821159362793
+Expanded nodes: 14809
+
+BFS
+Custo: 784.0 
+Time: 0.6049787998199463
+Expanded nodes: 22315
+
+UCS
+Custo: 649.0 
+Time: 0.12261772155761719
+Expanded nodes: 20553

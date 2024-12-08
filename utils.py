@@ -38,6 +38,9 @@ class Utils:
     def heuristic_euclidean_distance(self, x1, y1, x2, y2):
         return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
     
+    def heuristic_manhattan_distance(self, x1, y1, x2, y2):
+        return abs(x1 - x2) + abs(y1 - y2)
+    
     def store_map(self, map_file, width, height):
 
         game_map = [['' for _ in range(width)] for _ in range(height)]
@@ -52,7 +55,7 @@ class Utils:
                     game_map[y][x] = char
         
          # print map
-        for row in game_map:
-            print(row)
+        """ for row in game_map:
+            print(row) """
         
         return game_map

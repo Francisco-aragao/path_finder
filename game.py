@@ -13,6 +13,7 @@ import heapq
 from utils import Utils
 
 EXPANDED_NODES = 0
+costs = []
 
 class Game:
 
@@ -37,12 +38,13 @@ class Game:
             self.a_star(initial_x, initial_y, goal_x, goal_y)
         elif alg == 'Greedy':
             self.greedy(initial_x, initial_y, goal_x, goal_y)
+            #self.dfs(initial_x, initial_y, goal_x, goal_y)
         else:
             raise Exception(f'Algorithm {alg} not implemented')
         
         return self.best_path, self.min_cost, EXPANDED_NODES
 
-    """ def dfs(self, x, y, goal_x, goal_y, cost=0, path=None, visited=None):
+    def dfs(self, x, y, goal_x, goal_y, cost=0, path=None, visited=None):
         if visited is None:
             visited = set()
         if path is None:
@@ -75,7 +77,7 @@ class Game:
 
         # Backtrack: undo the move
         path.pop()
-        visited.remove((x, y)) """
+        visited.remove((x, y))
 
     
     def bfs(self, x, y, goal_x, goal_y, queue=None, visited=None):
@@ -132,55 +134,126 @@ class Game:
         path.remove((current_x, current_y))
         visited.remove((current_x, current_y))
 
-    def dfs_limited(self, x, y, goal_x, goal_y, depth_limit, cost=0, path=None):
+    """ def dfs_limited(self, x, y, goal_x, goal_y, depth_limit, cost=0, path=None, visited=None):
         
-
+        if visited is None:
+            visited = set()
         if path is None:
             path = []
 
         # Out of bounds or blocked terrain
         if (
-            x < 0 or y < 0 or x >= self.col or y >= self.row or 
-            self.map[x][y] == '@' or len(path) > depth_limit
+            len(path) >= depth_limit or (x, y) in visited or x < 0 or y < 0 or 
+            x >= self.col or y >= self.row or self.map[x][y] == '@' 
         ):
             return False
         
         global EXPANDED_NODES
         EXPANDED_NODES += 1
 
+        #print('Visiting', x, y, ':', self.map[x][y])
+
         # Add the current node to the path
         path.append((x, y))
+        visited.add((x, y))
 
         # Update the cost
-        if len(path) != 1:  # No cost for the initial position
-            cost += TERRAIN_COSTS[self.map[x][y]]
+        # if len(path) != 1:  # No cost for the initial position
+            #cost += TERRAIN_COSTS[self.map[x][y]] #
 
         # Check if we reached the goal
         if (x, y) == (goal_x, goal_y):
             if cost < self.min_cost:
                 self.min_cost = cost
                 self.best_path = path[:]
-            path.pop()  # Backtrack
+            #path.pop()  # Backtrack
             return True
+        
+        print('Visiting', x, y , ':', self.map[x][y])
 
         # Explore all 4 directions
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         for dx, dy in directions:
-            if self.dfs_limited(x + dx, y + dy, goal_x, goal_y, depth_limit, cost, path):
+
+            nx = x + dx
+            ny = y + dy
+
+            if (nx, ny) in visited:
+                continue
+
+            new_cost = cost + (TERRAIN_COSTS[self.map[nx][ny]] if (0 <= nx < self.col and 0 <= ny < self.row and self.map[nx][ny] != '@') else 0)
+            
+            if self.dfs_limited(nx, ny, goal_x, goal_y, depth_limit, new_cost, path, visited):
                 path.pop()  # Backtrack after exploring
                 return True
 
         # Backtrack: undo the move
         path.pop()
-        return False
+        visited.remove((x, y))
+        return False """
+    
+    def dfs_limited(self, x, y, goal_x, goal_y, max_depth=None, visited=None, depth=0, path=[]):
+        # Initialize visited set on the first call
+        if visited is None:
+            visited = set()
+
+        # Base case: stop recursion when the depth limit is reached or the queue is empty
+        if max_depth is not None and depth > max_depth:
+            return []
+        
+        if (x, y) in visited:
+            return []
+
+        visited.add((x, y))
+
+        # Check if we reached the goal
+        if (x, y) == (goal_x, goal_y):
+            # If we reached the goal, return the path
+            return path + [(x, y)] 
+        
+        global EXPANDED_NODES
+        EXPANDED_NODES += 1
+        
+        #print('Visiting', x, y , ':', self.map[x][y])
+
+        # Explore neighbors
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            
+            # Skip if out of bounds, already visited, or blocked terrain
+            if (
+                nx < 0 or ny < 0 or 
+                nx >= self.col or ny >= self.row or 
+                (nx, ny) in visited or self.map[nx][ny] == '@'
+            ):
+                continue
+            
+            # Recursively explore the neighbor with updated path
+            new_path = self.dfs_limited(nx, ny, goal_x, goal_y, max_depth, visited, depth + 1, path + [(x, y)])
+            
+            # If we found a path, return it
+            if new_path:
+                return new_path
+        
+        # If no path found, backtrack
+        visited.remove((x, y))
+        return None
+
+
 
     def ids(self, initial_x, initial_y, goal_x, goal_y):
         depth = 0
         while True:
             print(f"Trying depth limit: {depth}")
-            if self.dfs_limited(initial_x, initial_y, goal_x, goal_y, depth):
+            path = self.dfs_limited(initial_x, initial_y, goal_x, goal_y, depth)
+            if path:
+                self.best_path = path
+                self.min_cost = sum(TERRAIN_COSTS[self.map[x][y]] for x, y in path)
                 break
             depth += 1
+            if depth > self.row * self.col:
+                break
 
         return self.best_path, self.min_cost
 
@@ -209,11 +282,11 @@ class Game:
             # Mark the node as visited
             visited.add((x, y))
 
-            print(f"Visiting: ({x}, {y}) with cost: {current_cost}")
+            #print(f"Visiting: ({x}, {y}) with cost: {current_cost}")
 
             # Check if the goal has been reached
             if (x, y) == (goal_x, goal_y):
-                print("Goal reached!")
+                #print("Goal reached!")
                 self.best_path = path
                 self.min_cost = current_cost
                 return path, current_cost
@@ -257,11 +330,11 @@ class Game:
             global EXPANDED_NODES
             EXPANDED_NODES += 1
 
-            print(f"Visiting: ({x}, {y}) with cost: {current_cost}")
+            #print(f"Visiting: ({x}, {y}) with cost: {current_cost}")
 
             # Check if the goal has been reached
             if (x, y) == (goal_x, goal_y):
-                print("Goal reached!")
+                #print("Goal reached!")
                 self.best_path = path
                 self.min_cost = current_cost
 
@@ -303,7 +376,7 @@ class Game:
             # Pop the node with the smallest heuristic cost
             _, current_x, current_y, path, real_cost = heapq.heappop(priority_queue)
 
-            print(f"Visiting: ({current_x}, {current_y})")
+            #print(f"Visiting: ({current_x}, {current_y})")
 
             # Skip if out-of-bounds, blocked terrain, or already visited
             if (
@@ -313,6 +386,8 @@ class Game:
                 (current_x, current_y) in visited
             ):
                 continue
+
+            costs.append(real_cost)
             
             global EXPANDED_NODES
             EXPANDED_NODES += 1
@@ -322,7 +397,8 @@ class Game:
 
             # Check if the goal is reached
             if (current_x, current_y) == (goal_x, goal_y):
-                print("Goal reached!")
+                #print("Goal reached!")
+                #print(costs)
                 self.best_path = path
                 self.min_cost = real_cost
                 return path, real_cost

@@ -56,6 +56,16 @@ A função heurística utilizada é a distância euclidiana entre dois pontos, s
 
 Essa função é uma heurística admissível, já que a distância euclidiana é sempre menor ou igual a distância real entre dois pontos. No problema em questão, isso também é válido visto que o que importa não é somente a distância entre os pontos, mas também o custo de cada terreno que é percorrido. Dessa forma, o valor da heurística sempre vai ser menor que o custo real.
 
+\subsection{Função Heurística - Distância de Manhattan}
+
+A distância de Manhattan é uma heurística admissível que calcula a distância entre dois pontos em um plano cartesiano, sendo a soma das diferenças absolutas entre as coordenadas x e y dos pontos. A fórmula é dada por:
+
+\begin{equation}
+    h(n) = |x2 - x1| + |y2 - y1|
+\end{equation}
+
+Assim como a distância euclidiana, a distância de Manhattan é uma heurística admissível, já que a distância no plano cartesiano equivale a distância real do mapa do problema (considerando que o terreno seja o de menor custo, ou seja, custo 1). Desse modo, a heurística é equivalente ao caminho real mais curto entre dois pontos, sendo que na prática por conta de caminhos mais caros, a heurística é sempre menor ou igual ao custo real.
+
 \subsection{Greedy}
 
 A heurística de busca gulosa consiste em uma busca com informação, sendo utilizada uma heurística para auxiliar as tomadas de decisões. Assim, ao invés de se utilizar o custo real dos caminhos, é utilizado a distância euclidiana como um fator de decisão. Dessa forma, o caminho com menor valor para a função heurística é escolhido para ser expandido. O algoritmo não é ótimo (visto que não considera os custos reais) porém é completo (por padrão a abordagem não é completa, porém nesse trabalho sua implementação foi feita salvando caminhos já visitados, evitando que o algoritmo entre em loop). Sua complexidade é O(b\textsuperscript{m}), em que 'm' é a profundidade máxima da busca.
