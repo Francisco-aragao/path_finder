@@ -7,7 +7,6 @@ TERRAIN_COSTS = {
     '@': -1 
 }
 
-import time
 from collections import deque
 import heapq
 from utils import Utils
